@@ -1,0 +1,52 @@
+{
+  "name": "sf-plugin-trialforce",
+  "version": "0.0.0-development",
+  "description": "sf plugin for creating trial orgs",
+  "keywords": [
+    "sf-plugin",
+    "sfdx-plugin"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amtrack/sf-plugin-trialforce.git"
+  },
+  "bin": {
+    "sf-plugin-trialforce": "bin/run.js"
+  },
+  "files": [
+    "/bin/run.js",
+    "/lib",
+    "/oclif.manifest.json"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "rm -rf lib && tsc -p . && oclif manifest && oclif readme",
+    "prepack": "npm run build",
+    "prepare": "npm run build",
+    "test": "tsc -p test && mocha \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@salesforce/sf-plugins-core": "12.2.16"
+  },
+  "devDependencies": {
+    "@salesforce/dev-scripts": "11.0.4",
+    "oclif": "4.23.00"
+  },
+  "mocha": {
+    "loader": "ts-node/esm",
+    "no-warnings": "ExperimentalWarning"
+  },
+  "oclif": {
+    "additionalHelpFlags": [
+      "-h"
+    ],
+    "bin": "sf",
+    "commands": "./lib/commands",
+    "topicSeparator": " "
+  }
+}
