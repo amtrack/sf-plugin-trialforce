@@ -20,10 +20,6 @@
     "/oclif.manifest.json"
   ],
   "type": "module",
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
   "scripts": {
     "build": "rm -rf lib && tsc -p . && oclif manifest && oclif readme",
     "prepack": "npm run build",
