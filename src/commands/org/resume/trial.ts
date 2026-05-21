@@ -1,10 +1,7 @@
 import { Duration } from "@salesforce/kit";
 import { Flags, SfCommand } from "@salesforce/sf-plugins-core";
-import {
-  authenticateTrialOrg,
-  CompletedSignupRequest,
-  pollSignupRequest,
-} from "../../../lib/signup-request.js";
+import { exchangeAuthCode, resolveMyDomain, waitForOrgReady } from "../../../lib/org-auth.js";
+import { CompletedSignupRequest, pollSignupRequest } from "../../../lib/signup-request.js";
 
 export default class OrgResumeTrial extends SfCommand<CompletedSignupRequest> {
   public static readonly summary =
@@ -52,16 +49,25 @@ export default class OrgResumeTrial extends SfCommand<CompletedSignupRequest> {
 
     this.spinner.start("Waiting for trial org to be ready");
     const completed = await pollSignupRequest(tmoConn, signupRequestId, flags.wait);
+    this.spinner.stop();
 
-    this.spinner.status = "Authenticating";
-    const authInfo = await authenticateTrialOrg(completed);
+    this.spinner.start("Resolving MyDomain");
+    await resolveMyDomain(completed.Subdomain);
+    this.spinner.stop();
+
+    this.spinner.start("Waiting for org to be ready");
+    await waitForOrgReady(completed.Subdomain);
+    this.spinner.stop();
+
+    this.spinner.start("Authenticating");
+    const authInfo = await exchangeAuthCode(completed);
     await authInfo.handleAliasAndDefaultSettings({
       alias: flags.alias,
       setDefault: flags["set-default"],
       setDefaultDevHub: false,
     });
-
     this.spinner.stop();
+
     this.logSuccess("Trial org is ready.");
 
     return completed;

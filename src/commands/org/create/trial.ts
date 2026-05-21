@@ -1,8 +1,8 @@
 import { Duration } from "@salesforce/kit";
 import { Flags, SfCommand } from "@salesforce/sf-plugins-core";
 import { readFile } from "node:fs/promises";
+import { exchangeAuthCode, resolveMyDomain, waitForOrgReady } from "../../../lib/org-auth.js";
 import {
-  authenticateTrialOrg,
   createSignupRequest,
   pollSignupRequest,
   type CompletedSignupRequest,
@@ -155,27 +155,36 @@ export default class OrgCreateTrial extends SfCommand<
 
     this.spinner.start("Submitting SignupRequest");
     const created = await createSignupRequest(tmoConn, merged);
+    this.spinner.stop();
 
     if (flags.async) {
-      this.spinner.stop();
       this.info(
         `SignupRequest submitted with ID: ${created.Id}\nResume with: ${this.config.bin} org resume trial --target-org ${tmo.getUsername() ?? ""} --signup-request-id ${created.Id}`,
       );
       return created;
     }
 
-    this.spinner.status = "Waiting for trial org to be ready";
+    this.spinner.start("Waiting for trial org to be ready");
     const completed = await pollSignupRequest(tmoConn, created.Id, flags.wait);
+    this.spinner.stop();
 
-    this.spinner.status = "Authenticating";
-    const authInfo = await authenticateTrialOrg(completed);
+    this.spinner.start("Resolving MyDomain");
+    await resolveMyDomain(completed.Subdomain);
+    this.spinner.stop();
+
+    this.spinner.start("Waiting for org to be ready");
+    await waitForOrgReady(completed.Subdomain);
+    this.spinner.stop();
+
+    this.spinner.start("Authenticating");
+    const authInfo = await exchangeAuthCode(completed);
     await authInfo.handleAliasAndDefaultSettings({
       alias: flags.alias,
       setDefault: flags["set-default"],
       setDefaultDevHub: false,
     });
-
     this.spinner.stop();
+
     this.logSuccess("Trial org created successfully.");
 
     return completed;
