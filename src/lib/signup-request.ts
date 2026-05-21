@@ -7,6 +7,7 @@ import {
   type StatusResult,
 } from "@salesforce/core";
 import { Duration } from "@salesforce/kit";
+import { setTimeout } from "node:timers/promises";
 
 export type SignupRequest = {
   Id: string;
@@ -126,6 +127,7 @@ export async function authenticateTrialOrg(completed: CompletedSignupRequest): P
     frequency: Duration.seconds(10),
   });
   await resolver.resolve();
+  await waitForOrgReady(loginUrl, Duration.minutes(5), Duration.seconds(10));
   const authInfo = await AuthInfo.create({
     username: completed.Username,
     oauth2Options: {
@@ -136,4 +138,24 @@ export async function authenticateTrialOrg(completed: CompletedSignupRequest): P
   });
   await authInfo.save();
   return authInfo;
+}
+
+async function waitForOrgReady(
+  loginUrl: string,
+  timeout: Duration,
+  frequency: Duration,
+): Promise<void> {
+  const deadline = Date.now() + timeout.milliseconds;
+  while (true) {
+    const response = await fetch(loginUrl, { redirect: "follow" }).catch(() => null);
+    if (response && response.status !== 420) {
+      return;
+    }
+    if (Date.now() + frequency.milliseconds > deadline) {
+      throw new SfError(
+        `Org at ${loginUrl} did not become ready within ${timeout.minutes} minutes`,
+      );
+    }
+    await setTimeout(frequency.milliseconds);
+  }
 }

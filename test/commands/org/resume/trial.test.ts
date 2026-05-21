@@ -24,6 +24,7 @@ describe("org resume trial", () => {
     stubSfCommandUx($$.SANDBOX);
     stubSpinner($$.SANDBOX);
     $$.SANDBOX.stub(MyDomainResolver.prototype, "resolve").resolves("127.0.0.1");
+    $$.SANDBOX.stub(globalThis, "fetch").resolves({ status: 200 } as Response);
   });
 
   function stubAuthInfo($$: TestContext) {
