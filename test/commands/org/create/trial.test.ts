@@ -61,7 +61,9 @@ describe("org create trial", () => {
     const mockSubscribe = $$.SANDBOX.stub().resolves(COMPLETED_SIGNUP_REQUEST);
     $$.SANDBOX.stub(PollingClient, "create").resolves({ subscribe: mockSubscribe } as never);
 
-    $$.SANDBOX.stub(globalThis, "fetch").resolves({ status: 200 } as Response);
+    $$.SANDBOX.stub(globalThis, "fetch").resolves({
+      headers: { get: (name: string) => (name === "content-type" ? "application/json" : null) },
+    } as unknown as Response);
 
     const handleSettings = $$.SANDBOX.stub().resolves();
     const mockAuthInfo = {
