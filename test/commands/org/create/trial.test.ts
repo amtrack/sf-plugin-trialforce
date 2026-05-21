@@ -1,4 +1,4 @@
-import { AuthInfo, Connection, PollingClient } from "@salesforce/core";
+import { AuthInfo, Connection, MyDomainResolver, PollingClient } from "@salesforce/core";
 import { MockTestOrgData, TestContext } from "@salesforce/core/testSetup";
 import { stubSfCommandUx, stubSpinner } from "@salesforce/sf-plugins-core";
 import { expect } from "chai";
@@ -41,6 +41,7 @@ describe("org create trial", () => {
     await $$.stubAuths(testOrg);
     stubSfCommandUx($$.SANDBOX);
     stubSpinner($$.SANDBOX);
+    $$.SANDBOX.stub(MyDomainResolver.prototype, "resolve").resolves("127.0.0.1");
   });
 
   it("should submit a SignupRequest and return immediately with --async", async () => {

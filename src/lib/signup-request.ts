@@ -1,4 +1,11 @@
-import { AuthInfo, Connection, PollingClient, SfError, type StatusResult } from "@salesforce/core";
+import {
+  AuthInfo,
+  Connection,
+  MyDomainResolver,
+  PollingClient,
+  SfError,
+  type StatusResult,
+} from "@salesforce/core";
 import { Duration } from "@salesforce/kit";
 
 export type SignupRequest = {
@@ -113,6 +120,12 @@ export async function pollSignupRequest(
 
 export async function authenticateTrialOrg(completed: CompletedSignupRequest): Promise<AuthInfo> {
   const loginUrl = `https://${completed.Subdomain}.my.salesforce.com`;
+  const resolver = await MyDomainResolver.create({
+    url: new URL(loginUrl),
+    timeout: Duration.minutes(5),
+    frequency: Duration.seconds(10),
+  });
+  await resolver.resolve();
   const authInfo = await AuthInfo.create({
     username: completed.Username,
     oauth2Options: {

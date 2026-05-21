@@ -1,4 +1,4 @@
-import { AuthInfo, PollingClient } from "@salesforce/core";
+import { AuthInfo, MyDomainResolver, PollingClient } from "@salesforce/core";
 import { MockTestOrgData, TestContext } from "@salesforce/core/testSetup";
 import { stubSfCommandUx, stubSpinner } from "@salesforce/sf-plugins-core";
 import { expect } from "chai";
@@ -23,6 +23,7 @@ describe("org resume trial", () => {
     await $$.stubAuths(testOrg);
     stubSfCommandUx($$.SANDBOX);
     stubSpinner($$.SANDBOX);
+    $$.SANDBOX.stub(MyDomainResolver.prototype, "resolve").resolves("127.0.0.1");
   });
 
   function stubAuthInfo($$: TestContext) {
