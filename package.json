@@ -30,7 +30,7 @@
     "@salesforce/sf-plugins-core": "12.2.16"
   },
   "devDependencies": {
-    "@salesforce/dev-scripts": "11.0.4",
+    "@salesforce/dev-scripts": "13.0.2",
     "oclif": "4.23.00"
   },
   "mocha": {
