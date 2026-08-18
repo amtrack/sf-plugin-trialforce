@@ -59,7 +59,7 @@ describe("org list trial", () => {
       totalSize: 1,
     });
     await OrgListTrial.run(["-o", testOrg.username, "--limit", "1"]);
-    const soql: string = queryStub.firstCall.args[0] as string;
+    const soql: string = queryStub.secondCall.args[0] as string;
     expect(soql).to.include("LIMIT 1");
   });
 
