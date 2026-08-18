@@ -27,7 +27,7 @@
     "test": "tsc -p test && mocha \"test/**/*.test.ts\""
   },
   "dependencies": {
-    "@salesforce/sf-plugins-core": "12.2.16"
+    "@salesforce/sf-plugins-core": "12.2.28"
   },
   "devDependencies": {
     "@salesforce/dev-scripts": "13.0.2",
